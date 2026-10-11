@@ -1,0 +1,26 @@
+# Backend (Maven / Spring Boot)
+backend/target/
+backend/*.log
+backend/hs_err_pid*.log
+backend/replay_pid*.log
+
+# Frontend (Node / Vite)
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# Env files (never commit real secrets)
+.env
+.env.local
+*.env
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
