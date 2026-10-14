@@ -1,0 +1,42 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fabslot-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env
+    environment:
+      - PORT=8080
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8080
+    container_name: fabslot-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # Optional: Uncomment below if you want a local MySQL container instead of TiDB Cloud
+  # db:
+  #   image: mysql:8.0
+  #   container_name: fabslot-mysql
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root
+  #     MYSQL_DATABASE: fabslot_db
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #   restart: unless-stopped
+
+# volumes:
+#   mysql_data:
