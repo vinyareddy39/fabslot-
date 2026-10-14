@@ -62,4 +62,8 @@ public class JwtUtil {
     public String extractRole(String token) {
         return parseClaims(token).get("role", String.class);
     }
+
+    public Date extractExpiration(String token) {
+        return parseClaims(token).getExpiration();
+    }
 }

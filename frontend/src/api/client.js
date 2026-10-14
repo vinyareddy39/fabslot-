@@ -6,6 +6,12 @@ function getToken() {
   return localStorage.getItem("fabslot_token");
 }
 
+let onUnauthorizedCallback = null;
+
+export function setOnUnauthorized(cb) {
+  onUnauthorizedCallback = cb;
+}
+
 async function request(path, { method = "GET", body, auth = true } = {}) {
   const headers = { "Content-Type": "application/json" };
 
@@ -23,9 +29,29 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
   const contentType = res.headers.get("content-type") || "";
   const data = contentType.includes("application/json") ? await res.json() : null;
 
+  if (res.status === 401 && auth) {
+    localStorage.removeItem("fabslot_token");
+    localStorage.removeItem("fabslot_username");
+    localStorage.removeItem("fabslot_role");
+    if (typeof onUnauthorizedCallback === "function") {
+      onUnauthorizedCallback();
+    } else if (window.location.pathname !== "/login" && window.location.pathname !== "/register") {
+      window.location.href = "/login";
+    }
+  }
+
   if (!res.ok) {
-    const message = (data && (data.message || data.error)) || `Request failed (${res.status})`;
-    throw new Error(message);
+    let message = (data && (data.message || data.error)) || `Request failed (${res.status})`;
+    if (data && data.errors && typeof data.errors === "object") {
+      const fieldErrors = Object.values(data.errors).join(". ");
+      if (fieldErrors) {
+        message = `${message}: ${fieldErrors}`;
+      }
+    }
+    const err = new Error(message);
+    err.status = res.status;
+    err.data = data;
+    throw err;
   }
 
   return data;

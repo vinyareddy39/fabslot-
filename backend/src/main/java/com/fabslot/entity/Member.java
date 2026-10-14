@@ -23,6 +23,12 @@ public class Member {
     @Column(nullable = false)
     private String passwordHash;
 
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String fullName;
+
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
@@ -32,6 +38,14 @@ public class Member {
     public Member(String username, String passwordHash, MemberRole role) {
         this.username = username;
         this.passwordHash = passwordHash;
+        this.role = role;
+    }
+
+    public Member(String username, String passwordHash, String email, String fullName, MemberRole role) {
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.email = email;
+        this.fullName = fullName;
         this.role = role;
     }
 
@@ -57,6 +71,22 @@ public class Member {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public MemberRole getRole() {

@@ -9,16 +9,22 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 
 function NavBar() {
-  const { auth, logout } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <nav className="navbar">
-      <span className="brand">FabSlot</span>
+      <Link to="/" className="brand" style={{ textDecoration: "none" }}>
+        FabSlot
+      </Link>
       <div className="nav-links">
-        {auth ? (
+        {user ? (
           <>
-            <span className="user-chip">{auth.username} ({auth.role})</span>
-            <button onClick={logout}>Logout</button>
+            <span className="user-chip">
+              {user.fullName ? user.fullName : user.username} ({user.role})
+            </span>
+            <button onClick={logout} style={{ cursor: "pointer" }}>
+              Logout
+            </button>
           </>
         ) : (
           <>
@@ -32,11 +38,21 @@ function NavBar() {
 }
 
 function HomeRedirect() {
-  const { auth } = useAuth();
-  if (!auth) return <Navigate to="/login" replace />;
-  return auth.role === "LAB_ADMIN"
-    ? <Navigate to="/admin" replace />
-    : <Navigate to="/dashboard" replace />;
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return null;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return user.role === "LAB_ADMIN" ? (
+    <Navigate to="/admin" replace />
+  ) : (
+    <Navigate to="/student" replace />
+  );
 }
 
 function App() {
@@ -49,21 +65,27 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route
-            path="/dashboard"
+            path="/student"
             element={
-              <ProtectedRoute requireRole="STUDENT">
+              <ProtectedRoute allowedRoles={["STUDENT"]}>
                 <StudentDashboard />
               </ProtectedRoute>
             }
           />
+          {/* Backwards-compatibility alias */}
+          <Route
+            path="/dashboard"
+            element={<Navigate to="/student" replace />}
+          />
           <Route
             path="/admin"
             element={
-              <ProtectedRoute requireRole="LAB_ADMIN">
+              <ProtectedRoute allowedRoles={["LAB_ADMIN"]}>
                 <AdminDashboard />
               </ProtectedRoute>
             }
           />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>
